@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--bootstrap 5 CDN´s-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <!-- load plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- load mathjs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.9.1/math.js"
+        integrity="sha512-iC7V/1gOwGXzYGJ9f860Jq9K/YrL+AsSI7k/03F98EkX1GEsP2VjWdHgWpwhinDTe+HGznwCnVdR2d/o2In9bA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- DataTble (usa jQuery)-->
+    <link rel="stylesheet" href=//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- <script src ="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script> -->
+
+    <!--Google fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabin&display=swap" rel="stylesheet">
+    <!-- my CSS-->
+    <link rel="stylesheet" href="./mycss.css">
+
+    <link rel="icon" href="https://static.www.nfl.com/league/run3dfyjniqxah4ehxfu">
+
+    <!--AOS scroll animation-->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+</head>
+
+<body id="mybody">
+
+    <div class = "d-flex justify-content-center text-black" id = "loadscreen">
+            <div class = "container d-grid justify-content-center">
+                <div class="row">
+                    <div class = "fs-2 pb-4">Cargando contenido...</div>
+                </div>
+                <div class="row">
+                    <div id="spinner-container2">
+                        <div id= "initial-spinner"></div>
+                        <span id="progress-value">1%</span>
+                      </div>
+                </div>
+
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center text-black pt-2">
+        <div class = "row align-items-end">
+            <div class="col" id = "elogo-col">
+                <img id ="elogo" src="nfl-logo-png-transparent.png">
+            </div>
+            <div class="col" id = "eltitulo-col">
+                <div id = "titulo">NFL position selector</div>
+            </div> 
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center py-4">
+        <div class="card border rounded shadow" style="max-width: 1000px;min-width: 35%;">
+            <h5 class="card-header">Tus datos</h5>
+            <div class="card-body">
+                <div class="container text-center">
+                    <div class="row">
+                        <div class="col-sm">
+                            <label class="form-label" for="nombre">Nombre</label>
+                            <input type="text" id="nombre" class="form-control" onchange="getnombre()" value="Toni P">
+                        </div>
+                        <div class="col-sm">
+                            <label class="form-label" for="peso">Peso en kg</label>
+                            <input type="number" id="peso" class="form-control" min ="50" max = "200" onchange="getpeso()" value="78" />
+                        </div>
+                        <div class="col-sm">
+                            <label class="form-label" for="altura">Altura en cm</label>
+                            <input type="number" id="altura" class="form-control" min = "150" max= "250" onchange="getaltura()" value="172" />
+                        </div>
+                    </div>
+                    <div class="row pt-3 d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary"
+                            onclick=" updategraf1();get_distances();updategraf2();applyUserData();" id="ver"
+                            style="max-width: 200px;">Ver Resultados</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container justify-content-center py-4 border rounded shadow bg-body fs-6 d-none" id ="pos_msg" style="max-width: 600px;">
+    pres button above
+    </div>
+
+    <div class="container pb-4 pt-4">
+        <div class="row border rounded shadow bg-body " id="bloq_graf1">
+            <div class="col-md-8">
+                <div id="graf1"></div>
+            </div>
+            <div class="col-md-4">
+                <div id="graf2"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="container rounded shadow bg-body py-4">
+        <div class="btn-group fs-sm-6 d-flex justify-content-center mx-5 px-5" id = "posbutton" role="group"
+            aria-label="Basic radio toggle button group">
+            <input type="radio" class="btn-check" name="btnradio" id="radio_rb_fb" autocomplete="off"
+                onclick="update2nd('RB-FB');filterTable('RB-FB')">
+            <label class="btn btn-outline-secondary" for="radio_rb_fb">RB-FB</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_lb" autocomplete="off"
+                onclick="update2nd('LB')">
+            <label class="btn btn-outline-secondary" for="radio_lb">LB</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_db_cb_s" autocomplete="off" checked
+                onclick="update2nd('DB-CB-S')">
+            <label class="btn btn-outline-secondary" for="radio_db_cb_s">DB-CB-S</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_wr_te" autocomplete="off"
+                onclick="update2nd('WR-TE')">
+            <label class="btn btn-outline-secondary" for="radio_wr_te">WR-TE</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_steams" autocomplete="off"
+                onclick="update2nd('S.TEAMS')">
+            <label class="btn btn-outline-secondary" for="radio_steams">S.TEAMS</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_dl_de" autocomplete="off"
+                onclick="update2nd('DL-DE')">
+            <label class="btn btn-outline-secondary" for="radio_dl_de">DL-DE</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_ol_g_c" autocomplete="off"
+                onclick="update2nd('OL-G-C')">
+            <label class="btn btn-outline-secondary" for="radio_ol_g_c">OL-G-C</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="radio_qb" autocomplete="off"
+                onclick="update2nd('QB')">
+            <label class="btn btn-outline-secondary" for="radio_qb">QB</label>
+        </div>
+        <div class="row" id = "row_graf3_table">
+            <div id="spinner-container">
+                <div class="spinner"></div>
+              </div>
+            <div class="col-md-6">
+                <div class="lds-dual-ring" id= "spg3"></div>
+                <div id="graf3">
+                </div>
+            </div>
+            <div class="col-md-6 pt-5 rounded fs-6" id="tabla">
+                <table class="table table-sm table-striped compact hover" id="mitabla">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>posgroup</th>
+                            <th>Posición</th>
+                            <th>Altura</th>
+                            <th>Peso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpotabla" class="fs-6">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="container d-flex justify-content-center text-black pt-3 pb-2">
+        <span>Código en el <a href="">Repositorio</a>, datos recogidos antes del comienzo de la temporada 2023.</span>
+    </div>
+
+    <!--mi js-->
+    <script type="text/javascript" src="fetch.js"></script>
+    <script type="text/javascript" src="funs.js"></script>
+    <script type="text/javascript" src="runthis.js"></script>
+    <!--Problemas con el sphide-->
+    <script>
+      $("#pos_msg").hide;
+    </script>
+</body>
+
+</html>
